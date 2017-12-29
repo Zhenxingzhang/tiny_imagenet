@@ -75,37 +75,6 @@ def csv_to_record(csv_file, tfrecord_file):
         writer.write(serialized)
 
 
-def read_from_record(filename, shapes, plot=None):
-    # create iterator from TFRecord and read examples from it
-    for i, serialized_example in enumerate(tf.python_io.tf_record_iterator(filename)):
-        example = tf.train.Example()
-        example.ParseFromString(serialized_example)  # deserialise
-
-        # traverse the Example format to get data
-        image = example.features.feature['image'].int64_list.value
-        label = example.features.feature['label'].int64_list.value[0]
-        filename = example.features.feature['filename'].bytes_list.value[0]
-        # do something
-        if plot:
-            plt.suptitle('Read one at a time')
-            if i < plot:
-                plt.subplot(3, plot / 3 + (1 if plot % 3 > 0 else 0), i + 1)
-                plt.title(label)
-                im = np.array(image).reshape(shapes['image'])
-                plt.xticks(())
-                plt.yticks(())
-                plt.imshow(im.astype("uint8"))
-            else:
-                break
-        else:
-            print("Read example {}. Has label {}".format(i, label))
-            if i == 10:
-                print("That's enough of that!")
-                break
-    if plot:
-        plt.show()
-
-
 def read_record_to_queue(tf_record_name, shapes, plot=None):
     def read_and_decode_single_example(filename):
         # first construct a queue containing a list of filenames.
@@ -194,8 +163,8 @@ if __name__ == '__main__':
     # read from record one at time
     print('Reading from record one at a time')
     val_tfrecord_file = os.path.join(DATA_PATH, "train.tfrecord")
-    read_from_record(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)},
-                     plot=PLOT)
+    # read_from_record(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)},
+    #                  plot=PLOT)
 
     # read from record into queue, shuffle and batch
     print('Reading from record into queue, random sample from queue in batches')
