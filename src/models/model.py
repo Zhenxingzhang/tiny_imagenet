@@ -111,7 +111,7 @@ def conv_pool_layer(input_tensor, filter_size, num_filters, layer_name, act=tf.n
 
 
 # MODEL
-def get_cnn_from_scratch(x_input, keep_prob_=1.0):
+def conv_net(x_input, keep_prob_=1.0):
     out_1 = conv_pool_layer(x_input, filter_size=3, num_filters=16, layer_name='conv_1', pool=False)
     out_2 = conv_pool_layer(out_1, filter_size=3, num_filters=16, layer_name='conv_pool_2')
     out_3 = conv_pool_layer(out_2, filter_size=3, num_filters=16, layer_name='conv_3', pool=False)
@@ -128,6 +128,6 @@ def get_cnn_from_scratch(x_input, keep_prob_=1.0):
 if __name__ == "__main__":
     x = tf.placeholder(tf.float32, shape=[None, 64, 64, 3])
 
-    logits = get_cnn_from_scratch(x)
+    logits = conv_net(x)
 
     print(logits.get_shape())

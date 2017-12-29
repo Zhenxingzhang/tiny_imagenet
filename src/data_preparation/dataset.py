@@ -25,7 +25,7 @@ def read_from_record(filename, shapes, n=10):
     return records
 
 
-def read_record_to_queue(tf_record_name, shapes, b_size=32):
+def read_record_to_queue(tf_record_name, shapes, preproc_func=None, batch_size_=32):
     def read_and_decode_single_example(filename):
         # first construct a queue containing a list of filenames.
         # this lets a user split up there dataset in multiple files to keep
@@ -51,19 +51,21 @@ def read_record_to_queue(tf_record_name, shapes, b_size=32):
         # now return the converted data
         label__ = features['label']
         image__ = tf.reshape(features['image'], [64, 64, 3])
-        return label__, image__
+        preproc_image = preproc_func(image__) if preproc_func is not None else image__
+
+        return preproc_image, label__
 
     # returns symbolic label and image
-    label_, image_ = read_and_decode_single_example(tf_record_name)
+    image_, label_ = read_and_decode_single_example(tf_record_name)
 
     # groups examples into batches randomly
     # min_after_queue = size of buffer that will be randomly sampled
     # capcity = maxmimum examples to prefetch
     images_batch_, labels_batch_ = tf.train.shuffle_batch([image_, label_],
-                                                          batch_size=b_size,
+                                                          batch_size=batch_size_,
                                                           capacity=2000,
                                                           min_after_dequeue=1000)
-    return labels_batch_, images_batch_
+    return  images_batch_, labels_batch_
 
 
 if __name__ == "__main__":
@@ -78,7 +80,7 @@ if __name__ == "__main__":
         plt.imshow(image.astype("uint8"))
         plt.show()
 
-    labels_batch, images_batch = read_record_to_queue(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)})
+    images_batch, labels_batch = read_record_to_queue(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)})
 
     with tf.Session() as sess:
 
@@ -88,7 +90,7 @@ if __name__ == "__main__":
         print('Reading random batches of 32')
 
         # get ith batch
-        label_vals, image_vals = sess.run([labels_batch, images_batch])
+        image_vals, label_vals = sess.run([labels_batch, images_batch])
         print(label_vals.shape)
         print(image_vals.shape)
 
