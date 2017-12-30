@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     with tf.name_scope("input"):
         input_images = tf.placeholder(tf.float32, shape=[None, 64, 64, 3])
-        label = tf.placeholder(tf.int32)
+        label = tf.placeholder(tf.int64)
 
     with tf.name_scope('dropout_keep_prob'):
         keep_prob_tensor = tf.placeholder(tf.float32)
