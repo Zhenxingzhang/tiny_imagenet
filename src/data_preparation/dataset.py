@@ -49,7 +49,7 @@ def read_record_to_queue(tf_record_name, shapes, preproc_func=None, batch_size_=
                 'image': tf.FixedLenFeature([np.product(shapes['image'])], tf.int64)
             })
         # now return the converted data
-        label__ = features['label']
+        label__ = tf.squeeze(features['label'])
         image__ = tf.reshape(features['image'], [64, 64, 3])
         preproc_image = preproc_func(image__) if preproc_func is not None else image__
 
@@ -63,13 +63,13 @@ def read_record_to_queue(tf_record_name, shapes, preproc_func=None, batch_size_=
     # capcity = maxmimum examples to prefetch
     images_batch_, labels_batch_ = tf.train.shuffle_batch([image_, label_],
                                                           batch_size=batch_size_,
-                                                          capacity=2000,
+                                                          capacity=20000,
                                                           min_after_dequeue=1000)
-    return  images_batch_, labels_batch_
+    return images_batch_, labels_batch_
 
 
 if __name__ == "__main__":
-    val_tfrecord_file = os.path.join(DATA_PATH, "train.tfrecord")
+    val_tfrecord_file = os.path.join(DATA_PATH, "val.tfrecord")
 
     sample_count = 2
     samples = read_from_record(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)}, n=sample_count)
@@ -83,15 +83,15 @@ if __name__ == "__main__":
     images_batch, labels_batch = read_record_to_queue(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)})
 
     with tf.Session() as sess:
-
-        tf.train.start_queue_runners(sess=sess)
+        coord = tf.train.Coordinator()
+        tf.train.start_queue_runners(sess=sess, coord=coord)
 
         # grab examples back.
         print('Reading random batches of 32')
 
         # get ith batch
-        image_vals, label_vals = sess.run([labels_batch, images_batch])
-        print(label_vals.shape)
+        image_vals, label_vals = sess.run([images_batch, labels_batch])
+        print(label_vals)
         print(image_vals.shape)
 
         idx = np.random.randint(0, 32)  # sample 1 instance from batch
@@ -102,3 +102,5 @@ if __name__ == "__main__":
 
         plt.imshow(image_val.astype("uint8"))
         plt.show()
+
+        coord.request_stop()

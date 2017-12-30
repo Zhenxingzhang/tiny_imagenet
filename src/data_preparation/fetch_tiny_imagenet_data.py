@@ -12,7 +12,7 @@ import zipfile
 import src.common.paths as paths
 
 if __name__ == "__main__":
-    file_dir = os.path.abspath(paths.DATA_PATH)
+    file_dir = os.path.abspath(paths.DATA_ROOT)
     with tempfile.NamedTemporaryFile() as tmpfile:
         temp_file_name = tmpfile.name
         print("Downloading tiny imagenet dataset (237 MB) ")

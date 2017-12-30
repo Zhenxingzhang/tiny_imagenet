@@ -37,7 +37,7 @@ def variable_summaries(var, name):
         tf.summary.histogram(name, var)
 
 
-def fc_layer(input_tensor, num_units, layer_name, act=tf.nn.relu, keep_prob=1.0):
+def fc_layer(input_tensor, num_units, layer_name, keep_prob_tensor=None, act=tf.nn.relu):
     """Reusable code for making a simple neural net layer.
 
     It does a matrix multiply, bias add, and then uses relu to nonlinearize.
@@ -71,9 +71,10 @@ def fc_layer(input_tensor, num_units, layer_name, act=tf.nn.relu, keep_prob=1.0)
             tf.summary.histogram(layer_name + '/pre_activations', pre_activate)
         activations = act(pre_activate, 'activation')
         tf.summary.histogram(layer_name + '/activations', activations)
-        activations_drop = tf.nn.dropout(activations, keep_prob)
-
-    return activations_drop
+        if keep_prob_tensor is not None:
+            activations_drop = tf.nn.dropout(activations, keep_prob_tensor)
+            return activations_drop
+    return activations
 
 
 def conv_pool_layer(input_tensor, filter_size, num_filters, layer_name, act=tf.nn.relu, pool=True):
@@ -111,16 +112,16 @@ def conv_pool_layer(input_tensor, filter_size, num_filters, layer_name, act=tf.n
 
 
 # MODEL
-def conv_net(x_input, keep_prob_=1.0):
+def conv_net(x_input, keep_prob_=None):
     out_1 = conv_pool_layer(x_input, filter_size=3, num_filters=16, layer_name='conv_1', pool=False)
     out_2 = conv_pool_layer(out_1, filter_size=3, num_filters=16, layer_name='conv_pool_2')
     out_3 = conv_pool_layer(out_2, filter_size=3, num_filters=16, layer_name='conv_3', pool=False)
     out_4 = conv_pool_layer(out_3, filter_size=3, num_filters=32, layer_name='conv_pool_4')
     out_5 = conv_pool_layer(out_4, filter_size=3, num_filters=32, layer_name='conv_pool_5')
     out_6 = conv_pool_layer(out_5, filter_size=3, num_filters=64, layer_name='conv_pool_6')
-    out_7 = fc_layer(out_6, num_units=128, layer_name='FC_1', keep_prob=keep_prob_)
-    out_8 = fc_layer(out_7, num_units=256, layer_name='FC_2', keep_prob=keep_prob_)
-    logits_ = fc_layer(out_8, num_units=200, layer_name='logits', act=tf.identity, keep_prob=1.0)
+    out_7 = fc_layer(out_6, num_units=128, layer_name='FC_1', keep_prob_tensor=keep_prob_)
+    out_8 = fc_layer(out_7, num_units=256, layer_name='FC_2', keep_prob_tensor=keep_prob_)
+    logits_ = fc_layer(out_8, num_units=200, layer_name='logits', act=tf.identity, keep_prob_tensor=keep_prob_)
 
     return logits_
 
