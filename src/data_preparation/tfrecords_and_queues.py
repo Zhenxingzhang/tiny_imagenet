@@ -149,7 +149,7 @@ def read_record_to_queue(tf_record_name, shapes, plot=None):
 if __name__ == '__main__':
 
     # create TFRecords from csv files if necessary
-    for set_name in ['train', 'val']:
+    for set_name in ['train', 'val', 'train_example']:
         tfrecord_path = os.path.join(DATA_PATH, "{}.tfrecord".format(set_name))
         if not os.path.exists(tfrecord_path):
             print('Creating TFRecord from csv files for set: {}'.format(set_name))
