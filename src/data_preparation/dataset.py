@@ -86,7 +86,7 @@ def read_train_image_record(record):
             # We know the length of both fields. If not the
             # tf.VarLenFeature could be used
             'label': tf.FixedLenFeature([], tf.int64),
-            'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64),
+            'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64)
         })
 
     _features["image_shape"] = tf.reshape(tf.cast(_features['image'], tf.float32) / 255.0, [64, 64, 3])
@@ -100,16 +100,43 @@ def image_dataset():
     return _ds, _file_names
 
 
-def get_data_iter(sess_, tf_records_paths_, buffer_size=20000, batch_size=64):
+def get_train_val_data_iter(sess_, tf_records_paths_, buffer_size=20000, batch_size=64):
     ds_, file_names_ = image_dataset()
     ds_iter = ds_.shuffle(buffer_size).repeat().batch(batch_size).make_initializable_iterator()
     sess_.run(ds_iter.initializer, feed_dict={file_names_: tf_records_paths_})
     return ds_iter.get_next()
 
 
+def read_test_image_record(record):
+    feature_ = tf.parse_single_example(
+        record,
+        features={
+            'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64),
+            'filename': tf.FixedLenFeature([], tf.string)
+        })
+
+    feature_["image_shape"] = tf.reshape(tf.cast(feature_['image'], tf.float32) / 255.0, [64, 64, 3])
+
+    return feature_
+
+
+def test_image_dataset():
+    file_names_ = tf.placeholder(tf.string)
+    ds_ = tf.contrib.data.TFRecordDataset(file_names_).map(read_test_image_record)
+
+    return ds_, file_names_
+
+
+def get_test_data_iter(sess_, tf_records_paths_, batch_size=64):
+    ds_, file_names_ = test_image_dataset()
+    ds_iter = ds_.batch(batch_size).make_initializable_iterator()
+    sess_.run(ds_iter.initializer, feed_dict={file_names_: tf_records_paths_})
+    return ds_iter.get_next()
+
+
 if __name__ == "__main__":
     _, label_decoder = get_text_labels()
-    val_tfrecord_file = os.path.join(DATA_PATH, "train_example.tfrecord")
+    val_tfrecord_file = os.path.join(DATA_PATH, "val.tfrecord")
 
     sample_count = 2
     samples = read_from_record(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)}, n=sample_count)
@@ -145,15 +172,22 @@ if __name__ == "__main__":
         #
         # coord.request_stop()
         # coord.join(threads)
-        next_val_batch = get_data_iter(sess, [val_tfrecord_file])
-        batch_examples = sess.run(next_val_batch)
+
+        test_tfrecord_file = os.path.join(DATA_PATH, "test.tfrecord")
+
+        next_test_batch = get_test_data_iter(sess, [test_tfrecord_file])
+        batch_examples = sess.run(next_test_batch)
         images = batch_examples["image_shape"]
         print(images.shape)
-        labels = batch_examples["label"]
-        print(labels.shape)
+        # labels = batch_examples["label"]
+        # print(labels.shape)
+        # _, decoder = get_text_labels()
+        # print(decoder[labels[0]])
 
-        _, decoder = get_text_labels()
-        print(decoder[labels[0]])
-        plt.imshow(images[0].astype("uint8"))
+        batch_filename = batch_examples["filename"]
+        print(batch_filename.shape)
+        print(batch_filename[0])
+
+        plt.imshow(images[0])
         plt.show()
 

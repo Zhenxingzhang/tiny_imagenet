@@ -45,12 +45,15 @@ def csv_to_record(csv_file, tfrecord_file):
     for line in tqdm(lines):
         path = line.split(',')[0]
         image = np.array(Image.open(path))
+        image_name = path.split("/")[-1]
+        print(image_name)
         if len(image.shape) == 2:
             # there are some greyscale image in data, reformat them
             image = grey_to_rgb(image)
 
         flat_image = image.flatten().astype("int64")
-        label = int(line.split(',')[1])
+        text_label = line.split(',')[1]
+        label = -1 if (text_label == '' or text_label is not None) else int(text_label)
 
         # construct the Example proto object
         example = tf.train.Example(
@@ -64,7 +67,7 @@ def csv_to_record(csv_file, tfrecord_file):
                     'image': tf.train.Feature(
                         int64_list=tf.train.Int64List(value=flat_image)),
                     'filename': tf.train.Feature(
-                        bytes_list=tf.train.BytesList(value=[path]))
+                        bytes_list=tf.train.BytesList(value=[image_name]))
                 }
             )
         )
@@ -149,7 +152,7 @@ def read_record_to_queue(tf_record_name, shapes, plot=None):
 if __name__ == '__main__':
 
     # create TFRecords from csv files if necessary
-    for set_name in ['train', 'val', 'train_example']:
+    for set_name in ['train', 'val', 'test']:
         tfrecord_path = os.path.join(DATA_PATH, "{}.tfrecord".format(set_name))
         if not os.path.exists(tfrecord_path):
             print('Creating TFRecord from csv files for set: {}'.format(set_name))

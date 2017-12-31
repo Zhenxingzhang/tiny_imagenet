@@ -6,8 +6,8 @@ import os
 
 
 if __name__ == "__main__":
-    BATCH_SIZE = 128
-    NUM_STEPS = 301
+    BATCH_SIZE = 256
+    NUM_STEPS = 10001
     LEARNING_RATE = 1e-3
 
     with tf.name_scope("input"):
@@ -45,8 +45,8 @@ if __name__ == "__main__":
     val_tfrecord_file = os.path.join(DATA_PATH, "val.tfrecord")
 
     with tf.Session() as sess:
-        next_train_batch = dataset.get_data_iter(sess, [train_tfrecord_file], batch_size=BATCH_SIZE)
-        next_val_batch = dataset.get_data_iter(sess, [val_tfrecord_file], batch_size=BATCH_SIZE)
+        next_train_batch = dataset.get_train_val_data_iter(sess, [train_tfrecord_file], batch_size=BATCH_SIZE)
+        next_val_batch = dataset.get_train_val_data_iter(sess, [val_tfrecord_file], batch_size=BATCH_SIZE)
 
         sess.run(tf.global_variables_initializer())
 
