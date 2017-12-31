@@ -6,7 +6,7 @@ import os
 
 
 if __name__ == "__main__":
-    BATCH_SIZE = 256
+    BATCH_SIZE = 512
     NUM_STEPS = 30001
     LEARNING_RATE = 1e-3
 
