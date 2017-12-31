@@ -7,7 +7,7 @@ import os
 
 if __name__ == "__main__":
     BATCH_SIZE = 256
-    NUM_STEPS = 10001
+    NUM_STEPS = 30001
     LEARNING_RATE = 1e-3
 
     with tf.name_scope("input"):
@@ -63,7 +63,7 @@ if __name__ == "__main__":
             _, step_loss, step_summary = sess.run([train_op, loss_mean, summary_op],
                                                   feed_dict={input_images: train_images,
                                                              label: train_labels,
-                                                             keep_prob_tensor: 1.0})
+                                                             keep_prob_tensor: 0.5})
             train_writer.add_summary(step_summary, i)
             print("Step {}, train loss: {}".format(i, step_loss))
 

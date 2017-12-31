@@ -9,6 +9,8 @@ if __name__ == "__main__":
 
     LEARNING_RATE = 1e-3
 
+    _, label_decoder = dataset.get_text_labels()
+
     input_images = tf.placeholder(tf.float32, shape=[None, 64, 64, 3])
     keep_prob_tensor = tf.placeholder(tf.float32)
 
@@ -21,8 +23,6 @@ if __name__ == "__main__":
     saver = tf.train.Saver(variables_to_restore)
 
     check_point_path = os.path.join(paths.CHECKPOINT_PATH, str(LEARNING_RATE), "model.ckpt")
-
-    _, decoder = dataset.get_text_labels()
 
     with tf.Session() as sess:
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
                     pred_labels = sess.run(prediction, {input_images: test_images, keep_prob_tensor: 1.0})
 
                     for (p_label, filename) in zip(pred_labels, test_filename):
-                        output.writelines("{} {}\n".format(filename, p_label))
+                        output.writelines("{} {}\n".format(filename, label_decoder[p_label]))
 
             except tf.errors.OutOfRangeError:
                 print('End of the dataset')

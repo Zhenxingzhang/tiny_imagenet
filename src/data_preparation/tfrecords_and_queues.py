@@ -46,7 +46,6 @@ def csv_to_record(csv_file, tfrecord_file):
         path = line.split(',')[0]
         image = np.array(Image.open(path))
         image_name = path.split("/")[-1]
-        print(image_name)
         if len(image.shape) == 2:
             # there are some greyscale image in data, reformat them
             image = grey_to_rgb(image)
