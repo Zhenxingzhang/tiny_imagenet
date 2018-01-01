@@ -63,7 +63,7 @@ if __name__ == "__main__":
             _, step_loss, step_summary = sess.run([train_op, loss_mean, summary_op],
                                                   feed_dict={input_images: train_images,
                                                              label: train_labels,
-                                                             keep_prob_tensor: 0.5})
+                                                             keep_prob_tensor: 0.6})
             train_writer.add_summary(step_summary, i)
             print("Step {}, train loss: {}".format(i, step_loss))
 

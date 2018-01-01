@@ -20,7 +20,7 @@ Learning rate decay
 ## Findings
 Simple training the CNN model by feeding epochs of data will quickly overfit the model.
 
-![](images/conv_net_overfitting_0.5_dropout.png)
+![](images/conv_net_overfitting_0.6_dropout.png)
 
 ## Resources:
 [paper0](http://cs231n.stanford.edu/reports/2016/pdfs/425_Report.pdf)
