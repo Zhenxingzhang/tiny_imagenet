@@ -52,7 +52,7 @@ def csv_to_record(csv_file, tfrecord_file):
 
         flat_image = image.flatten().astype("int64")
         text_label = line.split(',')[1]
-        label = -1 if (text_label == '' or text_label is not None) else int(text_label)
+        label = -1 if (text_label == '' or text_label is None) else int(text_label)
 
         # construct the Example proto object
         example = tf.train.Example(
