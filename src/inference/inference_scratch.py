@@ -1,5 +1,5 @@
 import tensorflow as tf
-from src.models.model import conv_net
+from src.models.conv_net import conv_net
 from src.common import paths
 from src.data_preparation import dataset
 import os
