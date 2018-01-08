@@ -20,4 +20,4 @@ VAL:
 TEST:
     BATCH_SIZE : 20
     TF_RECORDS : ""
-    OUTPUT_PATH : "/data/outputs/dog_breeds"
+    OUTPUT_PATH : "/data/outputs/tiny_imagenet"

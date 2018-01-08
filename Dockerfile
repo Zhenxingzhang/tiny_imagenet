@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY ./setup /app/setup
 COPY ./src /app/src
-COPY ./notebooks /notebooks
+#COPY ./notebooks /notebooks
 COPY ./config /app/config
 
 WORKDIR /app

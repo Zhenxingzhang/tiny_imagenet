@@ -25,6 +25,8 @@ def train(model_name, model_arch, train_bz, val_bz, keep_prob_rate, steps, l_rat
         logits = model.mnist_net(input_images, categories, keep_prob_tensor)
     elif model_arch == "conv_net":
         logits = model.conv_net(input_images, categories, keep_prob_tensor)
+    elif model_arch == "vgg_16":
+        logits = model.vgg_16(input_images, categories, keep_prob_tensor)
     else:
         print("Model arch error!")
 
