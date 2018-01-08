@@ -37,7 +37,7 @@ def variable_summaries(var, name):
         tf.summary.histogram(name, var)
 
 
-def fc_layer(input_tensor, num_units, layer_name, keep_prob_tensor=None, act=tf.nn.relu):
+def fc_layer(input_tensor, num_units, layer_name, keep_prob_tensor, act=tf.nn.relu):
     """Reusable code for making a simple neural net layer.
 
     It does a matrix multiply, bias add, and then uses relu to nonlinearize.
@@ -71,10 +71,9 @@ def fc_layer(input_tensor, num_units, layer_name, keep_prob_tensor=None, act=tf.
             tf.summary.histogram(layer_name + '/pre_activations', pre_activate)
         activations = act(pre_activate, 'activation')
         tf.summary.histogram(layer_name + '/activations', activations)
-        if keep_prob_tensor is not None:
-            activations_drop = tf.nn.dropout(activations, keep_prob_tensor)
-            return activations_drop
-    return activations
+
+        activations_drop = tf.nn.dropout(activations, keep_prob_tensor)
+        return activations_drop
 
 
 def conv_pool_layer(input_tensor, filter_size, num_filters, layer_name, act=tf.nn.relu, pool=True):
@@ -189,8 +188,8 @@ def vgg_16(training_batch, dropout_keep_prob):
     Returns:
     class prediction scores
     """
-    img = tf.cast(training_batch, tf.float32)
-    out = (img - 128.0) / 128.0
+    out = tf.cast(training_batch, tf.float32)
+    out = (out - 128.0) / 128.0
 
     tf.summary.histogram('img', training_batch)
     # (N, 56, 56, 3)

@@ -96,7 +96,7 @@ def read_train_image_record(record):
 
     # features["image_resize"] = tf.image.resize_image_with_crop_or_pad(
     #     image=image, target_height=IMAGE_HEIGHT, target_width=IMAGE_WIDTH)
-    aug_image = tf.reshape(tf.cast(_features['image'], tf.uint8), [64, 64, 3])
+    aug_image = tf.cast(tf.reshape(_features['image'], [64, 64, 3]), tf.float32)
 
     # aug_image = tf.random_crop(aug_image, np.array([IMAGE_HEIGHT, IMAGE_WIDTH, 3]))
     # aug_image = tf.image.random_flip_left_right(aug_image)
@@ -119,7 +119,7 @@ def read_val_image_record(record):
             'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64)
         })
 
-    _features["image_resize"] = tf.reshape(tf.cast(_features['image'], tf.uint8), [64, 64, 3])
+    _features["image_resize"] = tf.cast(tf.reshape(_features['image'], [64, 64, 3]), tf.float32)
 
     return _features
 
@@ -132,7 +132,7 @@ def read_test_image_record(record):
             'filename': tf.FixedLenFeature([], tf.string)
         })
 
-    feature_["image_resize"] = tf.reshape(tf.cast(feature_['image'], tf.float32) / 255.0, [64, 64, 3])
+    feature_["image_resize"] = tf.cast(tf.reshape(feature_['image'], [64, 64, 3]), tf.float32)
 
     return feature_
 
@@ -204,7 +204,7 @@ if __name__ == "__main__":
         images = batch_examples["image_resize"]
         print(images.shape)
         labels = batch_examples["label"]
-        print(labels.shape)
+        print(labels)
         _, decoder = get_text_labels()
         print(decoder[labels[0]])
 
