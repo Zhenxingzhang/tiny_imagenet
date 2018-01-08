@@ -1,12 +1,17 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
-from src.common.paths import DATA_PATH, DATA_DIR
+from src.common import paths
 import os
+import math
+import random
+
+IMAGE_HEIGHT = 64
+IMAGE_WIDTH = 64
 
 
 def get_text_labels():
-    labels_ = [lab for lab in os.listdir(os.path.join(DATA_DIR, 'train')) if lab[0] != '.']
+    labels_ = [lab for lab in os.listdir(os.path.join(paths.DATA_DIR, 'train')) if lab[0] != '.']
     encoder_ = {lab: i for i, lab in enumerate(labels_)}
     decoder_ = {i: lab for i, lab in enumerate(labels_)}
 
@@ -89,22 +94,34 @@ def read_train_image_record(record):
             'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64)
         })
 
-    _features["image_shape"] = tf.reshape(tf.cast(_features['image'], tf.float32) / 255.0, [64, 64, 3])
+    # features["image_resize"] = tf.image.resize_image_with_crop_or_pad(
+    #     image=image, target_height=IMAGE_HEIGHT, target_width=IMAGE_WIDTH)
+    aug_image = tf.reshape(tf.cast(_features['image'], tf.uint8), [64, 64, 3])
 
+    # aug_image = tf.random_crop(aug_image, np.array([IMAGE_HEIGHT, IMAGE_WIDTH, 3]))
+    # aug_image = tf.image.random_flip_left_right(aug_image)
+    # degree = random.uniform(-15.0, 15.0)
+    # aug_image = tf.contrib.image.rotate(aug_image, degree * math.pi / 180, interpolation='BILINEAR')
+    # aug_image = tf.image.random_hue(aug_image, 0.05)
+    # aug_image = tf.image.random_saturation(aug_image, 0.5, 2.0)
+    _features["image_resize"] = aug_image
     return _features
 
 
-def image_dataset():
-    _file_names = tf.placeholder(tf.string)
-    _ds = tf.contrib.data.TFRecordDataset(_file_names).map(read_train_image_record)
-    return _ds, _file_names
+# dataset API
+def read_val_image_record(record):
+    _features = tf.parse_single_example(
+        record,
+        features={
+            # We know the length of both fields. If not the
+            # tf.VarLenFeature could be used
+            'label': tf.FixedLenFeature([], tf.int64),
+            'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64)
+        })
 
+    _features["image_resize"] = tf.reshape(tf.cast(_features['image'], tf.uint8), [64, 64, 3])
 
-def get_train_val_data_iter(sess_, tf_records_paths_, buffer_size=20000, batch_size=64):
-    ds_, file_names_ = image_dataset()
-    ds_iter = ds_.shuffle(buffer_size).repeat().batch(batch_size).make_initializable_iterator()
-    sess_.run(ds_iter.initializer, feed_dict={file_names_: tf_records_paths_})
-    return ds_iter.get_next()
+    return _features
 
 
 def read_test_image_record(record):
@@ -115,28 +132,36 @@ def read_test_image_record(record):
             'filename': tf.FixedLenFeature([], tf.string)
         })
 
-    feature_["image_shape"] = tf.reshape(tf.cast(feature_['image'], tf.float32) / 255.0, [64, 64, 3])
+    feature_["image_resize"] = tf.reshape(tf.cast(feature_['image'], tf.float32) / 255.0, [64, 64, 3])
 
     return feature_
 
 
-def test_image_dataset():
-    file_names_ = tf.placeholder(tf.string)
-    ds_ = tf.contrib.data.TFRecordDataset(file_names_).map(read_test_image_record)
+def get_data_iter(sess_, tf_records_paths_, phase, buffer_size=20000, batch_size=64):
+    if phase == "train":
+        read_image_record = read_train_image_record
+    elif phase == "val":
+        read_image_record = read_val_image_record
+    elif phase == "test":
+        read_image_record = read_test_image_record
+    else:
+        raise ValueError('The phase value should be: train/val/test')
 
-    return ds_, file_names_
-
-
-def get_test_data_iter(sess_, tf_records_paths_, batch_size=64):
-    ds_, file_names_ = test_image_dataset()
-    ds_iter = ds_.batch(batch_size).make_initializable_iterator()
-    sess_.run(ds_iter.initializer, feed_dict={file_names_: tf_records_paths_})
+    _file_names = tf.placeholder(tf.string)
+    _ds = tf.contrib.data.TFRecordDataset(_file_names).map(read_image_record)
+    if phase == "train" or phase == "val":
+        ds_iter = _ds.shuffle(buffer_size).repeat().batch(batch_size).make_initializable_iterator()
+    else:
+        ds_iter = _ds.batch(batch_size).make_initializable_iterator()
+    sess_.run(ds_iter.initializer, feed_dict={_file_names: tf_records_paths_})
     return ds_iter.get_next()
 
 
 if __name__ == "__main__":
     _, label_decoder = get_text_labels()
-    val_tfrecord_file = os.path.join(DATA_PATH, "val.tfrecord")
+    train_tfrecord_file = paths.TRAIN_TF_RECORDS
+    val_tfrecord_file = paths.VAL_TF_RECORDS
+    test_tfrecord_file = paths.TEST_TF_RECORDS
 
     sample_count = 2
     samples = read_from_record(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)}, n=sample_count)
@@ -146,7 +171,8 @@ if __name__ == "__main__":
         plt.imshow(image.astype("uint8"))
         plt.show()
 
-    images_batch, labels_batch, file_batch = read_record_to_queue(val_tfrecord_file, shapes={'label': 1, 'image': (64, 64, 3)})
+    images_batch, labels_batch, file_batch = read_record_to_queue(val_tfrecord_file,
+                                                                  shapes={'label': 1, 'image': (64, 64, 3)})
 
     with tf.Session() as sess:
         # coord = tf.train.Coordinator()
@@ -173,20 +199,18 @@ if __name__ == "__main__":
         # coord.request_stop()
         # coord.join(threads)
 
-        test_tfrecord_file = os.path.join(DATA_PATH, "test.tfrecord")
-
-        next_test_batch = get_test_data_iter(sess, [test_tfrecord_file])
-        batch_examples = sess.run(next_test_batch)
-        images = batch_examples["image_shape"]
+        next_batch = get_data_iter(sess, [train_tfrecord_file], "train")
+        batch_examples = sess.run(next_batch)
+        images = batch_examples["image_resize"]
         print(images.shape)
-        # labels = batch_examples["label"]
-        # print(labels.shape)
-        # _, decoder = get_text_labels()
-        # print(decoder[labels[0]])
+        labels = batch_examples["label"]
+        print(labels.shape)
+        _, decoder = get_text_labels()
+        print(decoder[labels[0]])
 
-        batch_filename = batch_examples["filename"]
-        print(batch_filename.shape)
-        print(batch_filename[0])
+        # batch_filename = batch_examples["filename"]
+        # print(batch_filename.shape)
+        # print(batch_filename[0])
 
         plt.imshow(images[0])
         plt.show()

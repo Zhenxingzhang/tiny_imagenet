@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
         test_tfrecord_file = os.path.join(paths.DATA_PATH, "test.tfrecord")
 
-        next_test_batch = dataset.get_test_data_iter(sess, [test_tfrecord_file])
+        next_test_batch = dataset.get_data_iter(sess, [test_tfrecord_file], "test")
 
         with open(os.path.join(paths.OUTPUT_PATH, "prediction.txt"), "w") as output:
             try:

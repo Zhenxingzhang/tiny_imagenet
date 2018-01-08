@@ -15,7 +15,7 @@ if __name__ == "__main__":
     file_dir = os.path.abspath(paths.DATA_ROOT)
     with tempfile.NamedTemporaryFile() as tmpfile:
         temp_file_name = tmpfile.name
-        print("Downloading tiny imagenet dataset (237 MB) ")
+        print("Downloading tiny imagenet dataset (237 MB) to {}".format(temp_file_name))
         a = urllib.request.urlretrieve("http://cs231n.stanford.edu/tiny-imagenet-200.zip", temp_file_name)
 
         file_path = os.path.join(file_dir, "tiny_imagenet-200.zip")

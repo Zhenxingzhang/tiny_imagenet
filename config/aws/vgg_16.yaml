@@ -1,0 +1,22 @@
+MODEL:
+    MODEL_NAME : "vgg_16_net"
+    INPUT_HEIGHT: 64
+    INPUT_WIDTH: 64
+    CLASSES: 200
+
+TRAIN:
+    BATCH_SIZE : 64
+    EPOCHS_COUNT : 30000
+    LEARNING_RATE : 0.001
+    KEEP_PROB : 0.5
+    TF_RECORDS : ""
+
+VAL:
+    BATCH_SIZE : 200
+    TF_RECORDS : ""
+
+
+TEST:
+    BATCH_SIZE : 200
+    TF_RECORDS : ""
+    OUTPUT_PATH : "/data/outputs/dog_breeds"

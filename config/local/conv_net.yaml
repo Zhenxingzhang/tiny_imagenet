@@ -1,0 +1,23 @@
+MODEL:
+    MODEL_NAME : "conv_net_local"
+    MODEL_ARCH: "conv_net"
+    INPUT_HEIGHT: 64
+    INPUT_WIDTH: 64
+    CLASSES: 200
+
+TRAIN:
+    BATCH_SIZE : 12
+    EPOCHS_COUNT : 30
+    LEARNING_RATE : 0.01
+    KEEP_PROB : 0.2
+    TF_RECORDS : ""
+
+VAL:
+    BATCH_SIZE : 10
+    TF_RECORDS : ""
+
+
+TEST:
+    BATCH_SIZE : 20
+    TF_RECORDS : ""
+    OUTPUT_PATH : "/data/outputs/dog_breeds"
