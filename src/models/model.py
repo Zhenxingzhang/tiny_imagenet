@@ -131,7 +131,59 @@ def conv_net(x_input, categories=200, keep_prob_=None):
     print(out_7.shape)
     out_8 = fc_layer(out_7, num_units=256, layer_name='FC_2', keep_prob_tensor=keep_prob_)
     print(out_8.shape)
-    logits_ = fc_layer(out_8, num_units=categories, layer_name='logits', act=tf.identity)
+    logits_ = fc_layer(out_8, num_units=categories, layer_name='logits', act=tf.identity, keep_prob_tensor=1.0)
+
+    return logits_
+
+
+def vgg_16(x_input, categories, keep_prob_):
+    """VGG-like conv-net
+    Args:
+    training_batch: batch of images (N, 56, 56, 3)
+    config: training configuration object
+    Returns:
+    class prediction scores
+    """
+    out = tf.cast(x_input, tf.float32)
+    out = (out - 128.0) / 128.0
+    print(out.shape)
+
+    # (N, 56, 56, 3)
+    out = conv_pool_layer(out, filter_size=3, num_filters=64, layer_name='conv_1_1', pool=False)
+    out = conv_pool_layer(out, filter_size=3, num_filters=64, layer_name='conv_1_2')
+    print(out.shape)
+
+    # (N, 28, 28, 64)
+    out = conv_pool_layer(out, filter_size=3, num_filters=128, layer_name='conv_2_1', pool=False)
+    out = conv_pool_layer(out, filter_size=3, num_filters=128, layer_name='conv_2_2')
+    print(out.shape)
+
+    # (N, 14, 14, 128)
+    out = conv_pool_layer(out, filter_size=3, num_filters=256, layer_name='conv_3_1', pool=False)
+    out = conv_pool_layer(out, filter_size=3, num_filters=256, layer_name='conv_3_2', pool=False)
+    out = conv_pool_layer(out, filter_size=3, num_filters=256, layer_name='conv_3_3')
+    print(out.shape)
+
+    # (N, 7, 7, 256)
+    out = conv_pool_layer(out, filter_size=3, num_filters=512, layer_name='conv_4_1', pool=False)
+    out = conv_pool_layer(out, filter_size=3, num_filters=512, layer_name='conv_4_2', pool=False)
+    out = conv_pool_layer(out, filter_size=3, num_filters=512, layer_name='conv_4_3', pool=False)
+    print(out.shape)
+
+    # fc1: flatten -> fully connected layer
+    # (N, 7, 7, 512) -> (N, 25088) -> (N, 4096)
+    out = fc_layer(out, num_units=4096, layer_name='FC_1', keep_prob_tensor=keep_prob_)
+    print(out.shape)
+
+    # fc2
+    # (N, 4096) -> (N, 2048)
+    out = fc_layer(out, num_units=2048, layer_name='FC_2', keep_prob_tensor=keep_prob_)
+    print(out.shape)
+
+    # softmax
+    # (N, 2048) -> (N, 200)
+    logits_ = fc_layer(out, num_units=categories, layer_name='logits', act=tf.identity, keep_prob_tensor=1.0)
+    print(out.shape)
 
     return logits_
 
@@ -180,7 +232,7 @@ def dense(inputs, units, name=None):
     return out
 
 
-def vgg_16(training_batch, dropout_keep_prob):
+def vgg_16_layer(training_batch, categories, dropout_keep_prob):
     """VGG-like conv-net
     Args:
     training_batch: batch of images (N, 56, 56, 3)
@@ -226,7 +278,7 @@ def vgg_16(training_batch, dropout_keep_prob):
 
     # softmax
     # (N, 2048) -> (N, 200)
-    logits = dense(out, 200, 'fc3')
+    logits = dense(out, categories, 'fc3')
 
     return logits
 
@@ -234,6 +286,4 @@ def vgg_16(training_batch, dropout_keep_prob):
 if __name__ == "__main__":
     x = tf.placeholder(tf.float32, shape=[None, 64, 64, 3])
 
-    logits = conv_net(x)
-
-    print(logits.get_shape())
+    logits = vgg_16(x, 200, 1.0)
