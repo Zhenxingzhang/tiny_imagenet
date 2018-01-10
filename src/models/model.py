@@ -136,6 +136,32 @@ def conv_net(x_input, categories=200, keep_prob_=None):
     return logits_
 
 
+# MODEL
+def conv_net(x_input, categories=200, keep_prob_=None):
+    x_input = tf.cast(x_input, tf.float32)
+    x_input = (x_input - 128.0) / 128.0
+
+    out_1 = conv_pool_layer(x_input, filter_size=3, num_filters=16, layer_name='conv_1', pool=False)
+    print(out_1.shape)
+    out_2 = conv_pool_layer(out_1, filter_size=3, num_filters=16, layer_name='conv_pool_2')
+    print(out_2.shape)
+    out_3 = conv_pool_layer(out_2, filter_size=3, num_filters=16, layer_name='conv_3', pool=False)
+    print(out_3.shape)
+    out_4 = conv_pool_layer(out_3, filter_size=3, num_filters=32, layer_name='conv_pool_4')
+    print(out_4.shape)
+    out_5 = conv_pool_layer(out_4, filter_size=3, num_filters=32, layer_name='conv_pool_5')
+    print(out_5.shape)
+    out_6 = conv_pool_layer(out_5, filter_size=3, num_filters=64, layer_name='conv_pool_6', pool=False)
+    print(out_6.shape)
+    out_7 = fc_layer(out_6, num_units=1024, layer_name='FC_1', keep_prob_tensor=keep_prob_)
+    print(out_7.shape)
+    out_8 = fc_layer(out_7, num_units=512, layer_name='FC_2', keep_prob_tensor=keep_prob_)
+    print(out_8.shape)
+    logits_ = fc_layer(out_8, num_units=categories, layer_name='logits', act=tf.identity, keep_prob_tensor=1.0)
+
+    return logits_
+
+
 def vgg_16(x_input, categories, keep_prob_):
     """VGG-like conv-net
     Args:
@@ -286,4 +312,4 @@ def vgg_16_layer(training_batch, categories, dropout_keep_prob):
 if __name__ == "__main__":
     x = tf.placeholder(tf.float32, shape=[None, 64, 64, 3])
 
-    logits = vgg_16(x, 200, 1.0)
+    logits = conv_net(x, 200, 1.0)
