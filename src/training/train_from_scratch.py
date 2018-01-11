@@ -23,8 +23,10 @@ def train(model_name, model_arch, train_bz, val_bz, keep_prob_rate, steps, l_rat
 
     if model_arch == "mnist_net":
         logits = model.mnist_net(input_images, categories, keep_prob_tensor)
-    elif model_arch == "conv_net":
-        logits = model.conv_net(input_images, categories, keep_prob_tensor)
+    elif model_arch == "conv_net_1":
+        logits = model.conv_net_1(input_images, categories, keep_prob_tensor)
+    elif model_arch == "conv_net_2":
+        logits = model.conv_net_2(input_images, categories, keep_prob_tensor)
     elif model_arch == "vgg_16":
         logits = model.vgg_16(input_images, categories, keep_prob_tensor)
     else:
@@ -66,11 +68,13 @@ def train(model_name, model_arch, train_bz, val_bz, keep_prob_rate, steps, l_rat
 
         train_writer = tf.summary.FileWriter(
             os.path.join(paths.TRAIN_SUMMARY_DIR,
+                         model_arch,
                          str(l_rate),
                          datetime.datetime.now().strftime("%Y%m%d-%H%M")),
             sess.graph)
         val_writer = tf.summary.FileWriter(
             os.path.join(paths.VAL_SUMMARY_DIR,
+                         model_arch,
                          str(l_rate),
                          datetime.datetime.now().strftime("%Y%m%d-%H%M")),
             sess.graph)

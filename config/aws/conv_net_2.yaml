@@ -1,13 +1,13 @@
 MODEL:
-    MODEL_NAME : "small_conv_net"
-    MODEL_ARCH: "conv_net"
+    MODEL_NAME : "conv_net"
+    MODEL_ARCH: "conv_net_2"
     INPUT_HEIGHT: 64
     INPUT_WIDTH: 64
     CLASSES: 200
 
 TRAIN:
-    BATCH_SIZE : 256
-    EPOCHS_COUNT : 40000
+    BATCH_SIZE : 512
+    EPOCHS_COUNT : 10000
     LEARNING_RATE : 0.01
     KEEP_PROB : 1.0
     TF_RECORDS : ""

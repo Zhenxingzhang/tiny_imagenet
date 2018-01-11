@@ -111,7 +111,7 @@ def conv_pool_layer(input_tensor, filter_size, num_filters, layer_name, act=tf.n
 
 
 # MODEL
-def conv_net(x_input, categories=200, keep_prob_=None):
+def conv_net_1(x_input, categories=200, keep_prob_=None):
     x_input = tf.cast(x_input, tf.float32)
     x_input = (x_input - 128.0) / 128.0
 
@@ -137,7 +137,7 @@ def conv_net(x_input, categories=200, keep_prob_=None):
 
 
 # MODEL
-def conv_net(x_input, categories=200, keep_prob_=None):
+def conv_net_2(x_input, categories=200, keep_prob_=None):
     x_input = tf.cast(x_input, tf.float32)
     x_input = (x_input - 128.0) / 128.0
 
