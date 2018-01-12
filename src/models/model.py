@@ -162,7 +162,7 @@ def conv_net_2(x_input, categories=200, keep_prob_=None):
     return logits_
 
 
-def vgg_16(x_input, categories, keep_prob_):
+def vgg_16_layer(x_input, categories, keep_prob_):
     """VGG-like conv-net
     Args:
     training_batch: batch of images (N, 56, 56, 3)
@@ -258,7 +258,7 @@ def dense(inputs, units, name=None):
     return out
 
 
-def vgg_16_layer(training_batch, categories, dropout_keep_prob):
+def vgg_16(training_batch, categories, dropout_keep_prob):
     """VGG-like conv-net
     Args:
     training_batch: batch of images (N, 56, 56, 3)
@@ -312,4 +312,4 @@ def vgg_16_layer(training_batch, categories, dropout_keep_prob):
 if __name__ == "__main__":
     x = tf.placeholder(tf.float32, shape=[None, 64, 64, 3])
 
-    logits = conv_net(x, 200, 1.0)
+    logits = conv_net_1(x, 200, 1.0)
