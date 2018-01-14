@@ -9,7 +9,7 @@ TRAIN:
     BATCH_SIZE : 64
     EPOCHS_COUNT : 301
     LEARNING_RATE : 0.001
-    KEEP_PROB : 1.0
+    KEEP_PROB : 0.4
     TF_RECORDS : ""
 
 VAL:

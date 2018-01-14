@@ -221,11 +221,14 @@ def conv_2d_relu(inputs, filters, kernel_size, name=None):
     stddev = np.sqrt(2 / (np.prod(kernel_size) * int(inputs.shape[3])))
 
     out = tf.layers.conv2d(inputs, filters=filters, kernel_size=kernel_size,
-                           padding='same', activation=tf.nn.relu,
+                           padding='same',
                            kernel_initializer=tf.random_normal_initializer(stddev=0.1),
                            # kernel_initializer=tf.random_normal_initializer(stddev=stddev),
                            kernel_regularizer=tf.contrib.layers.l2_regularizer(1.0),
                            name=name)
+    out = tf.layers.batch_normalization(out, training=True)
+    out = tf.nn.relu(out)
+
     tf.summary.histogram('act' + name, out)
 
     return out
@@ -236,10 +239,12 @@ def dense_relu(inputs, units, name=None):
 
     # He initialization: normal dist with stdev = sqrt(2.0/fan-in)
     stddev = np.sqrt(2 / int(inputs.shape[1]))
-    out = tf.layers.dense(inputs, units, activation=tf.nn.relu,
+    out = tf.layers.dense(inputs, units,
                           kernel_initializer=tf.random_normal_initializer(stddev=0.1),
                           kernel_regularizer=tf.contrib.layers.l2_regularizer(1.0),
                           name=name)
+    out = tf.layers.batch_normalization(out, training=True)
+    out = tf.nn.relu(out)
 
     tf.summary.histogram('act' + name, out)
 
@@ -255,6 +260,7 @@ def dense(inputs, units, name=None):
                           kernel_initializer=tf.random_normal_initializer(stddev=0.1),
                           kernel_regularizer=tf.contrib.layers.l2_regularizer(1.0),
                           name=name)
+    out = tf.layers.batch_normalization(out, training=True)
     tf.summary.histogram('act' + name, out)
 
     return out
@@ -347,7 +353,9 @@ def vgg_16_layer(training_batch, categories, dropout_prob, mode):
 
     # (N, 56, 56, 3)
     out = tf.layers.conv2d(inputs=out, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
+    out = tf.layers.batch_normalization(out, training=mode)
     out = tf.layers.conv2d(inputs=out, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu)
+    out = tf.layers.batch_normalization(out, training=mode)
     out = tf.layers.max_pooling2d(inputs=out, pool_size=[2, 2], strides=2, name='pool1')
 
     # (N, 28, 28, 64)
@@ -388,4 +396,4 @@ def vgg_16_layer(training_batch, categories, dropout_prob, mode):
 if __name__ == "__main__":
     x = tf.placeholder(tf.float32, shape=[None, 64, 64, 3])
 
-    logits = conv_net_1(x, 200, 1.0)
+    logits = vgg_16(x, 200, 1.0)
