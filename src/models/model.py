@@ -260,6 +260,35 @@ def dense(inputs, units, name=None):
     return out
 
 
+def conv_net_3(training_batch, categories, dropout_prob):
+    out = tf.cast(training_batch, tf.float32)
+    out = (out - 128.0) / 128.0
+    tf.summary.histogram('img', training_batch)
+
+    out_1 = conv_2d_relu(out, 16, [3, 3], name='conv_1')
+    out_2 = conv_2d_relu(out_1, 16, [3, 3], name='conv_2')
+    pool_1 = tf.layers.max_pooling2d(out_2, (2, 2), (2, 2), name='pool1')
+
+    out_3 = conv_2d_relu(pool_1, 16, [3, 3], name='conv_3')
+    out_4 = conv_2d_relu(out_3, 16, [3, 3], name='conv_4')
+    pool_2 = tf.layers.max_pooling2d(out_4, (2, 2), (2, 2), name='pool2')
+
+    out_5 = conv_2d_relu(pool_2, 16, [3, 3], name='conv_5')
+    pool_3 = tf.layers.max_pooling2d(out_5, (2, 2), (2, 2), name='pool3')
+
+    out_6 = conv_2d_relu(pool_3, 16, [3, 3], name='conv_6')
+
+    flat_1 = tf.contrib.layers.flatten(out_6)
+    dense_1 = dense_relu(flat_1, 1024, 'fc1')
+    dropout_1 = tf.nn.dropout(dense_1, dropout_prob)
+
+    dense_2 = dense_relu(dropout_1, 512, 'fc2')
+    dropout_2 = tf.nn.dropout(dense_2, dropout_prob)
+
+    logits = dense(dropout_2, categories, 'fc3')
+    return logits
+
+
 def vgg_16(training_batch, categories, dropout_keep_prob):
     """VGG-like conv-net
     Args:
