@@ -27,10 +27,13 @@ def train(model_name, model_arch, train_bz, val_bz, keep_prob_rate, steps, l_rat
         logits = model.conv_net_1(input_images, categories, keep_prob_tensor)
     elif model_arch == "conv_net_2":
         logits = model.conv_net_2(input_images, categories, keep_prob_tensor)
+    elif model_arch == "conv_net_3":
+        logits = model.conv_net_3(input_images, categories, keep_prob_tensor)
     elif model_arch == "vgg_16":
         logits = model.vgg_16(input_images, categories, keep_prob_tensor)
     else:
-        print("Model arch error!")
+        print("Model arch error, {} does not exist".format(model_arch))
+        exit()
 
     # for monitoring
     with tf.name_scope('loss'):

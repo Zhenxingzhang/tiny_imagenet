@@ -1,13 +1,13 @@
 MODEL:
-    MODEL_NAME : "conv_net"
-    MODEL_ARCH: "conv_net_2"
+    MODEL_NAME : "vgg_16_net"
+    MODEL_ARCH: "vgg_16"
     INPUT_HEIGHT: 64
     INPUT_WIDTH: 64
     CLASSES: 200
 
 TRAIN:
     BATCH_SIZE : 64
-    EPOCHS_COUNT : 10000
+    EPOCHS_COUNT : 101
     LEARNING_RATE : 0.001
     KEEP_PROB : 1.0
     TF_RECORDS : ""
@@ -18,6 +18,6 @@ VAL:
 
 
 TEST:
-    BATCH_SIZE : 500
+    BATCH_SIZE : 200
     TF_RECORDS : ""
     OUTPUT_PATH : "/data/outputs/tiny_imagenet"

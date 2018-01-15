@@ -96,14 +96,15 @@ def read_train_image_record(record):
 
     # features["image_resize"] = tf.image.resize_image_with_crop_or_pad(
     #     image=image, target_height=IMAGE_HEIGHT, target_width=IMAGE_WIDTH)
-    aug_image = tf.cast(tf.reshape(_features['image'], [64, 64, 3]), tf.float32)
+    aug_image = tf.reshape(_features['image'], [64, 64, 3])
 
-    # aug_image = tf.random_crop(aug_image, np.array([IMAGE_HEIGHT, IMAGE_WIDTH, 3]))
+    aug_image = tf.random_crop(aug_image, np.array([IMAGE_HEIGHT, IMAGE_WIDTH, 3]))
     # aug_image = tf.image.random_flip_left_right(aug_image)
     # degree = random.uniform(-15.0, 15.0)
     # aug_image = tf.contrib.image.rotate(aug_image, degree * math.pi / 180, interpolation='BILINEAR')
     # aug_image = tf.image.random_hue(aug_image, 0.05)
     # aug_image = tf.image.random_saturation(aug_image, 0.5, 2.0)
+
     _features["image_resize"] = aug_image
     return _features
 
@@ -119,7 +120,8 @@ def read_val_image_record(record):
             'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64)
         })
 
-    _features["image_resize"] = tf.cast(tf.reshape(_features['image'], [64, 64, 3]), tf.float32)
+    aug_image = tf.reshape(_features['image'], [64, 64, 3])
+    _features["image_resize"] = tf.image.resize_images(aug_image, [IMAGE_HEIGHT, IMAGE_WIDTH])
 
     return _features
 
@@ -131,8 +133,9 @@ def read_test_image_record(record):
             'image': tf.FixedLenFeature([np.product((64, 64, 3))], tf.int64),
             'filename': tf.FixedLenFeature([], tf.string)
         })
+    aug_image = tf.reshape(feature_['image'], [64, 64, 3])
 
-    feature_["image_resize"] = tf.cast(tf.reshape(feature_['image'], [64, 64, 3]), tf.float32)
+    feature_["image_resize"] = tf.tf.image.resize_images(aug_image, [IMAGE_HEIGHT, IMAGE_WIDTH, 3])
 
     return feature_
 
@@ -202,6 +205,11 @@ if __name__ == "__main__":
         next_batch = get_data_iter(sess, [train_tfrecord_file], "train")
         batch_examples = sess.run(next_batch)
         images = batch_examples["image_resize"]
+
+        print(images[0])
+
+        exit()
+
         print(images.shape)
         labels = batch_examples["label"]
         print(labels)

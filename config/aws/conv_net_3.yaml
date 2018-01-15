@@ -1,15 +1,15 @@
 MODEL:
-    MODEL_NAME : "conv_net"
-    MODEL_ARCH: "conv_net_2"
-    INPUT_HEIGHT: 64
-    INPUT_WIDTH: 64
+    MODEL_NAME : "conv_net_3"
+    MODEL_ARCH: "conv_net_3"
+    INPUT_HEIGHT: 58
+    INPUT_WIDTH: 58
     CLASSES: 200
 
 TRAIN:
     BATCH_SIZE : 64
-    EPOCHS_COUNT : 10000
+    EPOCHS_COUNT : 301
     LEARNING_RATE : 0.001
-    KEEP_PROB : 1.0
+    KEEP_PROB : 0.4
     TF_RECORDS : ""
 
 VAL:
