@@ -1,5 +1,5 @@
 import tensorflow as tf
-import src.models.model as model
+import src.models.layer_model as model
 from tensorflow.examples.tutorials.mnist import input_data
 
 

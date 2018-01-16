@@ -1,7 +1,7 @@
 import tensorflow as tf
 from src.common import paths
 from src.data_preparation import dataset
-from src.models import model
+from src.models import layer_model
 import yaml
 import os
 import datetime
@@ -22,15 +22,15 @@ def train(model_name, model_arch, train_bz, val_bz, keep_prob_rate, steps, l_rat
         keep_prob_tensor = tf.placeholder(tf.float32)
 
     if model_arch == "mnist_net":
-        logits = model.mnist_net(input_images, categories, keep_prob_tensor)
+        logits = layer_model.mnist_net(input_images, categories, keep_prob_tensor)
     elif model_arch == "conv_net_1":
-        logits = model.conv_net_1(input_images, categories, keep_prob_tensor)
+        logits = layer_model.conv_net_1(input_images, categories, keep_prob_tensor)
     elif model_arch == "conv_net_2":
-        logits = model.conv_net_2(input_images, categories, keep_prob_tensor)
+        logits = layer_model.conv_net_2(input_images, categories, keep_prob_tensor)
     elif model_arch == "conv_net_3":
-        logits = model.conv_net_3(input_images, categories, keep_prob_tensor)
+        logits = layer_model.conv_net_3(input_images, categories, keep_prob_tensor)
     elif model_arch == "vgg_16":
-        logits = model.vgg_16(input_images, categories, keep_prob_tensor)
+        logits = layer_model.vgg_16(input_images, categories, keep_prob_tensor)
     else:
         print("Model arch error, {} does not exist".format(model_arch))
         exit()
@@ -51,7 +51,7 @@ def train(model_name, model_arch, train_bz, val_bz, keep_prob_rate, steps, l_rat
     global_step = tf.Variable(0, trainable=False)
 
     learning_rate = tf.train.exponential_decay(l_rate, global_step,
-                                               3000, 0.5, staircase=True)
+                                               2000, 0.5, staircase=True)
 
     train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss_mean, global_step=global_step)
 
