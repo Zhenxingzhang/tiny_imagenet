@@ -5,9 +5,13 @@ import numpy as np
 
 # utility functions for weight and bias init
 def weight_variable(shape):
-    # wrong: initial = tf.truncated_normal(shape, stddev=0.1)
-    # np.random.randn(n) * sqrt(2.0 / n)
-    initial = np.random.randn(shape[-1]) * math.sqrt(2.0/shape[-1])
+    n_ = np.prod(shape)
+    print(n_)
+    mean_ = np.random.randn(n_) * math.sqrt(2.0 / n_)
+    print(mean_.shape)
+    initial = mean_.reshape(shape)
+    # initial = tf.truncated_normal(shape, mean=0, stddev=0.1)
+
     return tf.Variable(initial)
 
 
@@ -215,3 +219,13 @@ def vgg_16_layer(x_input, categories, keep_prob_):
     print(out.shape)
 
     return logits_
+
+
+if __name__ == "__main__":
+    weights = weight_variable([2, 2, 3, 1])
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+
+        w = sess.run(weights)
+        print(w[:, :, :, 0])
