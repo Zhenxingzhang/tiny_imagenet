@@ -4,13 +4,11 @@ import numpy as np
 
 
 # utility functions for weight and bias init
-def weight_variable(shape):
-    # n_ = np.prod(shape)
-    # print(n_)
-    # mean_ = np.random.randn(n_) * math.sqrt(2.0 / n_)
-    # print(mean_.shape)
-    # initial = mean_.reshape(shape)
-    initial = tf.truncated_normal(shape, stddev=0.1)
+def weight_variable(shape_):
+    n_ = np.prod(shape_)
+    mean_ = np.random.randn(n_) * math.sqrt(2.0 / n_)
+    initial = tf.cast(mean_.reshape(shape_), tf.float32)
+    # initial = tf.truncated_normal(shape, stddev=0.1)
 
     return tf.Variable(initial)
 
@@ -118,7 +116,7 @@ def conv_pool_layer(input_tensor, filter_size, num_filters, layer_name, act=tf.n
 
 
 # MODEL
-def conv_net_1(x_input, categories=200, keep_prob_=None):
+def mnist_net(x_input, categories=200, keep_prob_=None):
     x_input = tf.cast(x_input, tf.float32)
     x_input = (x_input - 128.0) / 128.0
 
@@ -144,7 +142,7 @@ def conv_net_1(x_input, categories=200, keep_prob_=None):
 
 
 # MODEL
-def conv_net_2(x_input, categories=200, keep_prob_=None):
+def conv_net(x_input, categories=200, keep_prob_=None):
     x_input = tf.cast(x_input, tf.float32)
     x_input = (x_input - 128.0) / 128.0
 
@@ -169,7 +167,7 @@ def conv_net_2(x_input, categories=200, keep_prob_=None):
     return logits_
 
 
-def vgg_16_layer(x_input, categories, keep_prob_):
+def vgg_16(x_input, categories, keep_prob_):
     """VGG-like conv-net
     Args:
     training_batch: batch of images (N, 56, 56, 3)
@@ -222,12 +220,16 @@ def vgg_16_layer(x_input, categories, keep_prob_):
 
 
 if __name__ == "__main__":
-    res = np.dot(np.ones([3,3]), np.zeros([3,3]))
-    print(res)
-    weights = weight_variable([2, 2, 3, 1])
+
+    shape = [3, 3, 16, 100]
+    weights = weight_variable(shape)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
         w = sess.run(weights)
-        print(w[:, :, :, 0])
+        w_0 = w[:, :, :, 0]
+
+        x = np.ones(shape[:-1])
+        res = np.sum(x * w_0)
+        print(res)

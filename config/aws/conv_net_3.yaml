@@ -1,6 +1,6 @@
 MODEL:
     MODEL_NAME : "conv_net_3"
-    MODEL_ARCH: "conv_net_3"
+    MODEL_ARCH: "conv_net"
     INPUT_HEIGHT: 58
     INPUT_WIDTH: 58
     CLASSES: 200
