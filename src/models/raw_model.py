@@ -5,16 +5,14 @@ import numpy as np
 
 # utility functions for weight and bias init
 def weight_variable(shape_):
-    n_ = np.prod(shape_)
-    mean_ = np.random.randn(n_) * math.sqrt(2.0 / n_)
-    initial = tf.cast(mean_.reshape(shape_), tf.float32)
-    # initial = tf.truncated_normal(shape, stddev=0.1)
-
+    n_ = np.prod(shape_[:-1])
+    initial = tf.truncated_normal(shape_, stddev=1.0) * math.sqrt(2.0 / n_)
+    # initial = tf.truncated_normal(shape_, stddev=0.1)
     return tf.Variable(initial)
 
 
 def bias_variable(shape):
-    initial = tf.constant(0.0, shape=shape)
+    initial = tf.constant(0.1, shape=shape)
     return tf.Variable(initial)
 
 
@@ -116,27 +114,27 @@ def conv_pool_layer(input_tensor, filter_size, num_filters, layer_name, act=tf.n
 
 
 # MODEL
-def mnist_net(x_input, categories=200, keep_prob_=None):
-    x_input = tf.cast(x_input, tf.float32)
-    x_input = (x_input - 128.0) / 128.0
+def mnist_net(x_input_, categories=10, keep_prob_=None):
+    x_input_ = tf.cast(x_input_, tf.float32)
+    # x_input_ = (x_input_ - 128.0) / 128.0
 
-    out_1 = conv_pool_layer(x_input, filter_size=3, num_filters=16, layer_name='conv_1', pool=False)
+    out_1 = conv_pool_layer(x_input_, filter_size=5, num_filters=32, layer_name='conv_pool_1')
     print(out_1.shape)
-    out_2 = conv_pool_layer(out_1, filter_size=3, num_filters=16, layer_name='conv_pool_2')
+    out_2 = conv_pool_layer(out_1, filter_size=5, num_filters=64, layer_name='conv_pool_2')
     print(out_2.shape)
-    out_3 = conv_pool_layer(out_2, filter_size=3, num_filters=16, layer_name='conv_3', pool=False)
-    print(out_3.shape)
-    out_4 = conv_pool_layer(out_3, filter_size=3, num_filters=32, layer_name='conv_pool_4')
-    print(out_4.shape)
-    out_5 = conv_pool_layer(out_4, filter_size=3, num_filters=32, layer_name='conv_pool_5')
-    print(out_5.shape)
-    out_6 = conv_pool_layer(out_5, filter_size=3, num_filters=64, layer_name='conv_pool_6', pool=False)
-    print(out_6.shape)
-    out_7 = fc_layer(out_6, num_units=128, layer_name='FC_1', keep_prob_tensor=keep_prob_)
+    # out_3 = conv_pool_layer(out_2, filter_size=3, num_filters=16, layer_name='conv_3', pool=False)
+    # print(out_3.shape)
+    # out_4 = conv_pool_layer(out_3, filter_size=3, num_filters=32, layer_name='conv_pool_4')
+    # print(out_4.shape)
+    # out_5 = conv_pool_layer(out_4, filter_size=3, num_filters=32, layer_name='conv_pool_5')
+    # print(out_5.shape)
+    # out_6 = conv_pool_layer(out_5, filter_size=3, num_filters=64, layer_name='conv_pool_6', pool=False)
+    # print(out_6.shape)
+    out_7 = fc_layer(out_2, num_units=1024, layer_name='FC_1', keep_prob_tensor=keep_prob_)
     print(out_7.shape)
-    out_8 = fc_layer(out_7, num_units=256, layer_name='FC_2', keep_prob_tensor=keep_prob_)
-    print(out_8.shape)
-    logits_ = fc_layer(out_8, num_units=categories, layer_name='logits', act=tf.identity, keep_prob_tensor=1.0)
+    # out_8 = fc_layer(out_7, num_units=256, layer_name='FC_2', keep_prob_tensor=keep_prob_)
+    # print(out_8.shape)
+    logits_ = fc_layer(out_7, num_units=categories, layer_name='logits', act=tf.identity, keep_prob_tensor=1.0)
 
     return logits_
 
@@ -221,15 +219,33 @@ def vgg_16(x_input, categories, keep_prob_):
 
 if __name__ == "__main__":
 
-    shape = [3, 3, 16, 100]
-    weights = weight_variable(shape)
+    # shape = [3, 3, 3, 2048]
+    # weights = weight_variable(shape)
+    #
+    # with tf.Session() as sess:
+    #     sess.run(tf.global_variables_initializer())
+    #
+    #     w = sess.run(weights)
+    #     w_0 = w[:, :, :, 0]
+    #     print(w_0)
+    #
+    #     x = np.ones(shape[:-1])
+    #     res = np.sum(x * w_0)
+    #     print(res)
+
+    x_input = tf.placeholder(tf.float32, [None, 58, 58, 1])
+    label = tf.placeholder(tf.int64)
+
+    logits = vgg_16(x_input, 200, 1.0)
+
+    prob = tf.nn.softmax(logits)
+
+    loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=label, logits=logits)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
-        w = sess.run(weights)
-        w_0 = w[:, :, :, 0]
-
-        x = np.ones(shape[:-1])
-        res = np.sum(x * w_0)
+        x = np.ones([1, 58, 58, 1])
+        res = sess.run(loss, {x_input: x, label: [1]})
         print(res)
+
