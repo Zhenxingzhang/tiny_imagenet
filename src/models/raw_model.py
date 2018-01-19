@@ -236,7 +236,7 @@ if __name__ == "__main__":
     x_input = tf.placeholder(tf.float32, [None, 58, 58, 1])
     label = tf.placeholder(tf.int64)
 
-    logits = vgg_16(x_input, 200, 1.0)
+    logits = vgg_16(x_input, 10, 1.0)
 
     prob = tf.nn.softmax(logits)
 
@@ -246,6 +246,6 @@ if __name__ == "__main__":
         sess.run(tf.global_variables_initializer())
 
         x = np.ones([1, 58, 58, 1])
-        res = sess.run(loss, {x_input: x, label: [1]})
-        print(res)
+        loss_, logits_ = sess.run([loss, logits], {x_input: x, label: [1]})
+        print("{}, {}".format(loss_, logits_))
 

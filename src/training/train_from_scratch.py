@@ -24,7 +24,7 @@ def train(model_name, model_arch, train_bz, val_bz, keep_prob_rate, steps, l_rat
     if model_arch == "mnist_net":
         logits = raw_model.mnist_net(input_images, categories, keep_prob_tensor)
     elif model_arch == "conv_net":
-        logits = raw_model.conv_net_1(input_images, categories, keep_prob_tensor)
+        logits = raw_model.conv_net(input_images, categories, keep_prob_tensor)
     elif model_arch == "vgg_16":
         logits = raw_model.vgg_16(input_images, categories, keep_prob_tensor)
     else:
