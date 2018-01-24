@@ -53,7 +53,7 @@ def dense(inputs, units, name=None):
     return out
 
 
-def conv_net_3(training_batch, categories, dropout_prob):
+def conv_net(training_batch, categories, dropout_prob):
     out = tf.cast(training_batch, tf.float32)
     out = (out - 128.0) / 128.0
     tf.summary.histogram('img', training_batch)

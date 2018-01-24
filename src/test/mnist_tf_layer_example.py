@@ -1,5 +1,7 @@
 import tensorflow as tf
 import src.models.layer_model as model
+import src.models.raw_model as raw_model
+
 from tensorflow.examples.tutorials.mnist import input_data
 
 
@@ -110,12 +112,12 @@ def cnn_model_fn(features, categories, dropout_prob, mode):
 
 
 if __name__ == "__main__":
-    x_input = tf.placeholder(tf.int8, shape=[None, 784])
+    x_input = tf.placeholder(tf.int8, shape=[None, 28, 28, 1])
     y_ = tf.placeholder(tf.float32, shape=[None, 10])
 
     keep_prob = tf.placeholder(tf.float32)
 
-    logits = mnist_layer(x_input, 10, keep_prob, True)
+    logits = raw_model.mnist_net(x_input, 10, keep_prob)
 
     with tf.name_scope('cross_entropy'):
         cross_entropy = tf.losses.softmax_cross_entropy(onehot_labels=y_, logits=logits)
@@ -133,7 +135,7 @@ if __name__ == "__main__":
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
         tf.summary.scalar('accuracy', accuracy)
 
-    learning_rate = 0.001
+    learning_rate = 0.0001
 
     with tf.name_scope('train'):
         train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
@@ -147,8 +149,9 @@ if __name__ == "__main__":
 
         for i in range(1001):
             batch_images, batch_labels = mnist.train.next_batch(64)
+            batch_images = batch_images.reshape(64, 28, 28, 1)
             loss, _ = sess.run([cross_entropy, train_step],
-                               feed_dict={x_input: batch_images, y_: batch_labels, keep_prob: 0.0})
+                               feed_dict={x_input: batch_images, y_: batch_labels, keep_prob: 1.0})
             print("steps: {}, loss: {}".format(i, loss))
 
 
